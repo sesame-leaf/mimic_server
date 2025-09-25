@@ -1,8 +1,10 @@
 from enum import Enum
+import time
 from fastapi import FastAPI
+from fastapi.responses import FileResponse
 from pydantic import BaseModel
 
-# from image_model import generate_image, save_image
+from image_model import generate_image, save_image
 
 
 # Class Definitions
@@ -13,13 +15,12 @@ class ResponseStatus(Enum):
     EMPTY_PROMPT: int = 3
 
 
-class PromptRequest(BaseModel):
+class RequestModel(BaseModel):
     prompt: str | None = None
 
 
-class ImageResponse(BaseModel):
-    response: ResponseStatus
-    image: bytes | None = None
+class ResponseModel(BaseModel):
+    response_state: int | None = None
 
 
 # Constants
@@ -28,30 +29,34 @@ ROOT_SAVE_PATH: str = r"C:\Users\user\Desktop\dAiv_Ai_Mimic_Challenge"
 
 # Global Variables
 generating_image: bool = False
-image_counter: int = 0
 app = FastAPI()
 
 
 @app.post("/")
-async def image_generation_response(request: PromptRequest):
-    global generating_image, image_counter
+async def image_generation_response(request: RequestModel):
+    global generating_image
+
     if generating_image:
-        return {"response": ResponseStatus.IMAGE_GENERATING}
+        return ResponseModel(response_state=ResponseStatus.IMAGE_GENERATING)
     
     if request.prompt is None:
-        return {"response": ResponseStatus.EMPTY_PROMPT}
+        return ResponseModel(response_state=ResponseStatus.EMPTY_PROMPT)
     
     generating_image = True
 
     try:
-        # generate_image(request.prompt)
-        # save_image(f"{ROOT_SAVE_PATH}\\{image_counter}.png")
+        image_name: str = str(int(time.time())) + ".png"
+        generate_image(request.prompt)
+        save_image(f"{ROOT_SAVE_PATH}/{image_name}")
+        save_image(f"images/{image_name}")
         pass
     except:
         generating_image = False
-        return {"response": ResponseStatus.IMAGE_GENERATION_FAILED}
+        return ResponseModel(response_state=ResponseStatus.IMAGE_GENERATION_FAILED)
     
-    image_counter += 1
     generating_image = False
-    print(image_counter)
-    return {"response": ResponseStatus.IMAGE_GENERATION_SUCCESS}
+    return FileResponse(
+        path=f"images/", 
+        media_type="image/png",
+        filename=image_name
+    )
