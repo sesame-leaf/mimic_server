@@ -3,6 +3,8 @@ import time
 from fastapi import FastAPI
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
+import mimetypes
+import base64
 
 from image_model import generate_image, save_image
 
@@ -54,9 +56,24 @@ async def image_generation_response(request: RequestModel):
         generating_image = False
         return ResponseModel(response_state=ResponseStatus.IMAGE_GENERATION_FAILED)
     
+    ###############주소 넣어줘####################
+    file_path = f"images/{image_name}"
+
+    with open(file_path, "rb") as image_file:
+        contents = image_file.read()
+
+    mime_type, _ = mimetypes.guess_type(file_path)
+    if mime_type is None:
+        mime_type = "application/octet-stream"
+
+    base64_image = base64.b64encode(contents).decode('utf-8')
+
+    ###################################
+    
     generating_image = False
-    return FileResponse(
-        path=f"images/", 
-        media_type="image/png",
-        filename=image_name
-    )
+    # return FileResponse(
+    #     path=f"images/", 
+    #     media_type="image/png",
+    #     filename=image_name
+    # )
+    return {"mime_type": mime_type, "base64_image": base64_image}

@@ -1,5 +1,8 @@
 import torch
 from diffusers import StableDiffusionPipeline, DPMSolverMultistepScheduler
+import os
+
+os.chdir("./images")
 
 image = None
 model_id = "stabilityai/stable-diffusion-2-1"
