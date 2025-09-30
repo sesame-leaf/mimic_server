@@ -6,6 +6,9 @@ from pydantic import BaseModel
 import mimetypes
 import base64
 
+from fastapi import Request
+from fastapi.middleware.cors import CORSMiddleware
+
 from image_model import generate_image, save_image
 
 
@@ -32,23 +35,31 @@ ROOT_SAVE_PATH: str = r"C:\Users\CSE\Desktop\dAiv_Ai_Mimic_Challenge"
 # Global Variables
 generating_image: bool = False
 app = FastAPI()
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
-@app.post("/")
-async def image_generation_response(request: RequestModel):
+@app.post("/prompt")
+async def image_generation_response(request: Request):
     global generating_image
 
+    prompt = base64.b64decode(request.headers.get("prompt")).decode('utf-8')
     if generating_image:
         return ResponseModel(response_state=ResponseStatus.IMAGE_GENERATING)
     
-    if request.prompt is None:
+    if prompt is None:
         return ResponseModel(response_state=ResponseStatus.EMPTY_PROMPT)
     
     generating_image = True
 
     try:
         image_name: str = str(int(time.time())) + ".png"
-        generate_image(request.prompt)
+        generate_image(prompt)
         save_image(f"{ROOT_SAVE_PATH}/{image_name}")
         save_image(f"images/{image_name}")
     except:
@@ -71,3 +82,5 @@ async def image_generation_response(request: RequestModel):
     
     generating_image = False
     return {"mime_type": mime_type, "base64_image": base64_image}
+    # return {"image_name": image_name}
+    
