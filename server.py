@@ -51,7 +51,6 @@ async def image_generation_response(request: RequestModel):
         generate_image(request.prompt)
         save_image(f"{ROOT_SAVE_PATH}/{image_name}")
         save_image(f"images/{image_name}")
-        pass
     except:
         generating_image = False
         return ResponseModel(response_state=ResponseStatus.IMAGE_GENERATION_FAILED)
@@ -71,9 +70,4 @@ async def image_generation_response(request: RequestModel):
     ###################################
     
     generating_image = False
-    # return FileResponse(
-    #     path=f"images/", 
-    #     media_type="image/png",
-    #     filename=image_name
-    # )
     return {"mime_type": mime_type, "base64_image": base64_image}
