@@ -26,7 +26,7 @@ class ResponseModel(BaseModel):
 
 
 # Constants
-ROOT_SAVE_PATH: str = r"C:\Users\user\Desktop\dAiv_Ai_Mimic_Challenge"
+ROOT_SAVE_PATH: str = r"C:\Users\CSE\Desktop\dAiv_Ai_Mimic_Challenge"
 
 
 # Global Variables
