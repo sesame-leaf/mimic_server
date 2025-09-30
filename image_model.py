@@ -2,7 +2,7 @@ import torch
 from diffusers import StableDiffusionPipeline, DPMSolverMultistepScheduler
 import os
 
-os.chdir("./images")
+os.chdir(r"C:\Users\CSE\Desktop\mimic_server-main\images")
 
 image = None
 model_id = "stabilityai/stable-diffusion-2-1"
